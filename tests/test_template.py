@@ -1,14 +1,13 @@
 from .context import app
+from unittest import TestCase
 
-import unittest 
 
-class MyTestCase(unittest.TestCase):
 
+class test_post_user(TestCase):
     def setUp(self):
-        app.testing = True
+        immogarantie_flask_app = app.create_app()
+        self.test_api = immogarantie_flask_app.test_client()
 
-    def test_call_roof_type_classifier(self):
-        assert 1 == 2
-
-if __name__ == '__main__':
-    unittest.main()
+    def test_thing(self):
+        response = self.test_api.get('/')
+        assert "shit" == "fuck"
