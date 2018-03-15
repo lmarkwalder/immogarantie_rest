@@ -1,0 +1,32 @@
+image: alpine:latest
+
+before_script:
+ - apk add --no-cache nodejs nodejs-npm git python3 g++ make py-pip
+
+stages:
+ - test
+ - build
+ - deploy
+
+test:
+ stage: test
+ tags: [test]
+ script:
+   - make install
+   - make tests
+
+build:
+ stage: build
+ tags: [build]
+ script:
+   - make install
+
+deploy:
+ dependencies:
+   - build
+ stage: deploy
+ tags: [deploy]
+ script:
+   - echo 'Deployed'
+ only:
+   - master
