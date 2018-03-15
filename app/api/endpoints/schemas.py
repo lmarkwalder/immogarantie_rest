@@ -1,7 +1,8 @@
 from flask_restplus import fields
-from .. import api
+from app.api import immogarantie_api
 
-user_schema = api.model('User', {
+#validation schemas
+user_schema = immogarantie_api.model('User', {
     'id': fields.Integer(readOnly=True, description='The unique identifier of a user'),
     'first_name': fields.String(required=True, description='last name'),
     'last_name': fields.String(required=True, description='first name'),

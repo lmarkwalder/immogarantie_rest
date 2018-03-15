@@ -1,47 +1,47 @@
 import flask
 import flask_restplus
 from app.database.model.user import User as User_Model
-from app.database.dao.user import create_user, delete_user, update_user
-from app.api import api
+import app.database.dao.user as user_dao
+from app.api import immogarantie_api
 from app.api.endpoints.schemas import user_schema
 
-users_ns = api.namespace('users', description='User operations')
+users_ns = immogarantie_api.namespace('users', description='User operations')
 
 
 @users_ns.route('/')
 class UserListAPI(flask_restplus.Resource):
 
-    @api.marshal_with(user_schema, as_list=True)
+    @immogarantie_api.marshal_with(user_schema, as_list=True)
     def get(self):
         """
         Returns list of users.
         """
         return User_Model.query.all()
 
-    @api.response(201, 'User successfully created.')
-    @api.expect(user_schema)
+    @immogarantie_api.response(201, 'User successfully created.')
+    @immogarantie_api.expect(user_schema)
     def post(self):
         """
         Creates a new user.
         """
         data = flask.request.json
-        create_user(data)
+        user_dao.create_user(data)
         return None, 201
 
 
 @users_ns.route('/<int:id>')
-@api.response(404, 'User not found.')
+@immogarantie_api.response(404, 'User not found.')
 class UserAPI(flask_restplus.Resource):
 
-    @api.marshal_with(user_schema)
+    @immogarantie_api.marshal_with(user_schema)
     def get(self, id):
         """
-        Returns a .
+        Returns a user.
         """
-        return User_Model.query.filter(User.id == id).one()
+        return User_Model.query.filter(User_Model.id == id).one()
 
-    @api.expect(user_schema)
-    @api.response(204, 'User successfully updated.')
+    @immogarantie_api.expect(user_schema)
+    @immogarantie_api.response(204, 'User successfully updated.')
     def put(self, id):
         """
         Updates a user.
@@ -56,12 +56,12 @@ class UserAPI(flask_restplus.Resource):
         * Specify the ID of the category to modify in the request URL path.
         """
         data = flask.request.json
-        update_user(id, data)
+        user_dao.update_user(id, data)
         return None, 204
 
-    @api.response(204, 'User successfully deleted.')
+    @immogarantie_api.response(204, 'User successfully deleted.')
     def delete(self, id):
         """
         Deletes a user.
         """
-        delete_user(id)
+        user_dao.delete_user(id)

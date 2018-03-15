@@ -1,10 +1,9 @@
 import os
 import flask
-from flask_migrate import Migrate
+import flask_migrate
 import app.config as Config
-from app.api import api
-from app.api.endpoints import users_ns
-from app.database.setup import db
+import app.api as Api
+import app.database as Database
 
 
 def create_app(config=None, app_name=None, blueprints=None):
@@ -13,18 +12,18 @@ def create_app(config=None, app_name=None, blueprints=None):
     if app_name is None:
         app_name = Config.DefaultConfig.PROJECT
 
+    #create flask app
     app = flask.Flask(app_name)
-    basedir = os.path.abspath(os.path.dirname(__file__))
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
-    app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+    configure_extensions(app)
+
+    #set main route after localhost:5000
     blueprint = flask.Blueprint('api', __name__, url_prefix='/api')
-    api.init_app(blueprint)
-    api.add_namespace(users_ns)
+    Api.immogarantie_api.init_app(blueprint)
+    #add the namespaces for the api => localhost:5000/api/<namespace>
+    Api.immogarantie_api.add_namespace(Api.endpoints.users_ns)
     app.register_blueprint(blueprint)
-    migrate = Migrate(app, db)
-    db.init_app(app)
+
     return app
 
 
@@ -45,8 +44,14 @@ def configure_blueprints(app, blueprints):
 
 
 def configure_extensions(app):
-    pass
-
+    #configure sqlite db
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'database', 'sqlite_db.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    Database.db.init_app(app)
+    #configure flask migrate
+    migrate = flask_migrate.Migrate(app, Database.db)
 
 def configure_logging(app):
     pass
